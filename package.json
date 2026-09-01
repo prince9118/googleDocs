@@ -1,0 +1,14 @@
+{
+  "name": "googledocs",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest",
+    "prettier": "^3.9.6",
+    "turbo": "^2.10.12"
+  },
+  "peerDependencies": {
+    "typescript": "^7.0.2"
+  }
+}
