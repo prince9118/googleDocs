@@ -8,11 +8,11 @@
  *
  * 🟢 You can import this file directly.
  */
-export type * from './models/User.ts'
-export type * from './models/Document.ts'
-export type * from './models/DocumentMember.ts'
-export type * from './models/ShareLink.ts'
-export type * from './models/Comment.ts'
-export type * from './models/CommentReply.ts'
-export type * from './models/Revision.ts'
-export type * from './commonInputTypes.ts'
+export type * from './models/User.js'
+export type * from './models/Document.js'
+export type * from './models/DocumentMember.js'
+export type * from './models/ShareLink.js'
+export type * from './models/Comment.js'
+export type * from './models/CommentReply.js'
+export type * from './models/Revision.js'
+export type * from './commonInputTypes.js'
