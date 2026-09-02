@@ -1,0 +1,154 @@
+generator client {
+    provider = "prisma-client"
+    output   = "../packages/db/generated"
+}
+
+datasource db {
+    provider = "postgresql"
+}
+
+enum DocumentRole {
+    VIEWER
+    COMMENTER
+    EDITOR
+}
+
+enum ShareType {
+    PRIVATE
+    LINK
+}
+
+model User {
+    id           String  @id @default(uuid())
+    name         String
+    email        String  @unique
+    passwordHash String
+    avatarUrl    String?
+
+    documents      Document[]
+    memberships    DocumentMember[]
+    comments       Comment[]
+    commentReplies CommentReply[]
+    revisions      Revision[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([email])
+}
+
+model Document {
+    id      String @id @default(uuid())
+    title   String @default("United document")
+    content Json?
+
+    ownerId String
+    owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+    members   DocumentMember[]
+    comments  Comment[]
+    revisions Revision[]
+    shares    ShareLink[]
+
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+    deletedAt DateTime?
+
+    @@index([ownerId])
+    @@index([updatedAt])
+    @@index([deletedAt])
+}
+
+model DocumentMember {
+    id String @id @default(uuid())
+
+    documentId String
+    userId     String
+    document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+    user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    role DocumentRole
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@unique([documentId, userId])
+    @@index([userId])
+    @@index([documentId])
+}
+
+model ShareLink {
+    id String @id @default(uuid())
+
+    documentId String
+    document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+    token String       @unique
+    type  ShareType
+    role  DocumentRole
+
+    expiresAt DateTime?
+
+    createdAt DateTime @default(now())
+
+    @@index([documentId])
+    @@index([token])
+}
+
+model Comment {
+    id String @id @default(uuid())
+
+    documentId String
+    userId     String
+
+    document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+    user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    content      String
+    fromPosition Int?
+    toPosition   Int?
+
+    resolved Boolean @default(false)
+
+    replies CommentReply[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([documentId])
+    @@index([userId])
+}
+
+model CommentReply {
+    id String @id @default(uuid())
+
+    commentId String
+    userId    String
+
+    comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+    user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    content String
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([commentId])
+    @@index([userId])
+}
+
+model Revision {
+    id String @id @default(uuid())
+
+    documentId String
+    userId     String
+    document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+    user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    snapshot Json
+
+    createdAt DateTime @default(now())
+
+    @@index([documentId, createdAt])
+    @@index([userId])
+}
